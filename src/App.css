@@ -1,0 +1,24 @@
+* {
+    margin: 0;
+    
+}
+
+body {
+    background-color: #E4E0DB;
+    
+}
+
+.app {
+   
+    justify-content: space-evenly;
+    padding: 30px;
+}
+
+.app_header h1 {
+    font-size: 35px;
+}
+
+.Line_graph {
+    display: flex;
+    flex-direction: column;
+}
