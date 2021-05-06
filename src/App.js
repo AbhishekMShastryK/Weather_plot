@@ -1,6 +1,5 @@
 import {React,useState,useEffect, useRef} from 'react';
 import './App.css'
-import Geolocation from './Component/Geolocation.js'
 import { Line } from "react-chartjs-2";
 
 import axios from "axios";
@@ -98,7 +97,7 @@ const  App = () => {
            var date = new Date(sec*1000);
            const t = date.toLocaleTimeString().replace(/([\d]+:[\d]{2})(:[\d]{2})(.*)/, "$1$3");
          
-           if (prevTemp.length == 10 || prevTime.length == 10 || prevHumd.length == 10){
+           if (prevTemp.length === 10 || prevTime.length === 10 || prevHumd.length === 10){
               setTemp(prev => prev.slice(1))
               setTime(prev => prev.slice(1))
               setHumd(prev => prev.slice(1))
