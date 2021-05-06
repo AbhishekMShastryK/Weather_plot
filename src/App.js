@@ -150,7 +150,7 @@ const  App = () => {
 
     useInterval(() => {
       chart()
-    }, 200000)
+    }, 1800000)
    
 
    
