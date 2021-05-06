@@ -1,69 +1,182 @@
-import {React,useState,useEffect} from 'react';
+import {React,useState,useEffect, useRef} from 'react';
 import './App.css'
-import LineGraph from './LineGraph.js'
 import Geolocation from './Component/Geolocation.js'
+import './LineGraph.css'
+import { Line } from "react-chartjs-2";
+
+import axios from "axios";
 
 
 
-function geo(){
-  return
+const options = {
+  legend: {
+    display: false,
+  },
+
+  scales: {
+    xAxes: [{
+        gridLines: {
+            borderDash: [8, 4],
+            color: "#111111",
+            lineWidth: 0.3,
+          
+        },
+        
+       
+    }],
+
+    yAxes: [{
+        gridLines: {
+            borderDash: [8, 4],
+            color: "#111111",
+            lineWidth: 0.3
+        },
+    }]
 }
 
-function App() {
-  const [latitude, setLatitude] = useState(0)
-  const [longitude, setLongitude] = useState(0)
+}
+
+// function geo(){
+//   return
+// }
+const useInterval = (callback, delay) => {
+  const savedCallback = useRef();
+
+  useEffect(() => {
+    savedCallback.current = callback;
+  }, [callback]);
+
+  useEffect(() => {
+    function tick() {
+      savedCallback.current();
+    }
+    if (delay !== null) {
+      let id = setInterval(tick, delay);
+      return () => clearInterval(id);
+    }
+  }, [delay]);
+};
+
+
+
+const  App = () => {
+  const [latitude, setLatitude] = useState(13.3409)
+  const [longitude, setLongitude] = useState(74.7421)
   const location =  Geolocation();
+  const [chartData, setChartData] = useState({});
+  const [humidityData, sethumidityData] = useState({});
+  const [prevTemp , setTemp] = useState([])
+  const [prevHumd , setHumd] = useState([]) 
+  const [prevTime, setTime] = useState([])
   // setLatitude(location.coordinates.lat)
   // setLongitude(location.coordinates.lng)
+  
+ 
+
   const api = {
-    key: "164cf4f8f37048ac1ab5c343313e2cb9",
+    key: "db92dbd0e5ed39b512b44ff3fa2f11d4",
     base: 'https://api.openweathermap.org/data/2.5/weather?'
   }
   
-//  console.log("CALUEEEE",);
+  
   
 
   const [errorMessage, setErrorMessage] = useState(null)  
   const [currentWeather, setCurrentWeather] = useState()
-   const [unitSystem, setunitSystem] = useState('metric')
+  const [unitSystem, setunitSystem] = useState('metric')
 
-    console.log(  "Hsjjh",   location.loaded ? JSON.stringify(location) : "NOT")
-    useEffect(() =>{
-      
-      load()
-    },[unitSystem])
-    async function load(){
-      
-        setErrorMessage(null)
+   const chart =() => {
+    //  let temp =[]
+    //  let hours = []
+     const weatherUrl = `${api.base}lat=${latitude}&lon=${longitude}&units=${unitSystem}&appid=${api.key}`
+     axios
+     .get(weatherUrl)
+     .then(res =>{
+       console.log(res)
+       setCurrentWeather(res.data)
+           // console.log("time",t, res.data.main.temp)
+           var sec = res.data.dt;
+           var date = new Date(sec*1000);
+           const t = date.toLocaleTimeString().replace(/([\d]+:[\d]{2})(:[\d]{2})(.*)/, "$1$3");
+         
+           if (prevTemp.length == 10 || prevTime.length == 10 || prevHumd.length == 10){
+              setTemp(prev => prev.slice(1))
+              setTime(prev => prev.slice(1))
+              setHumd(prev => prev.slice(1))
+            }
+
+           setTime(prev => [...prev,t])
+           setHumd(prev => [...prev,res.data.main.humidity])
+           setTemp (prev=> [...prev, res.data.main.temp])
+           console.log(prevTime,prevTemp)
+           setChartData({
+            labels: prevTime,
+            datasets:[
+              {
+             data: prevTemp,
+             fill: true,
+             borderColor: "#111111",
+             pointBackgroundColor: '#D68520'
+              }
+            ]
+          })
+
+          sethumidityData({
+            labels: prevTime,
+            datasets:[
+              {
+             data: prevHumd,
+             fill: true,
+             borderColor: "#111111",
+             pointBackgroundColor: '#D68520'
+              }
+            ]
+          })
+           
+     })
+     .catch(err => {
+       console.log(err);
+     })
+     console.log(prevTime,prevTemp)
+     console.log(prevHumd)
+      // console.log( currentWeather)
+
+    };
+
+    // useEffect(()=>{
+    //  chart()
+    // },[])
 
 
+    useInterval(() => {
+      chart()
+    }, 200000)
+   
 
-        const weatherUrl = `${api.base}lat=${latitude}&lon=${longitude}&units=${unitSystem}&appid=${api.key}`
-        console.log(weatherUrl)
-        
-        
-        const response = await fetch(weatherUrl)
-        
-        const result = await response.json()
-        
-        if(response.ok){
-          // console.log(result)
-          setCurrentWeather(result)
-        
-        }
-        
-        else{
-          setErrorMessage(result.message)
-        } 
-      }
-    
+   
   return (
+    
     <div className="app">
       <div className="app_header">
         <h1>Micro Weather Station</h1>
       </div>
       <div className="Line_Graph">
-        <LineGraph className="app_graph" currentWeather={currentWeather }/> 
+     {/* <LineGraph className="app_graph" currentWeather={currentWeather }/>  */}
+      <h3> Temperature </h3>
+      
+
+       <Line 
+              options={options}
+              data={chartData}
+              
+             />     
+      <h3> Humidity </h3>
+     
+        <Line 
+              options={options}
+              data={humidityData}
+              
+             />      
       </div>
     </div>
   );
