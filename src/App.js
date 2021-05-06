@@ -1,7 +1,6 @@
 import {React,useState,useEffect, useRef} from 'react';
 import './App.css'
 import Geolocation from './Component/Geolocation.js'
-import './LineGraph.css'
 import { Line } from "react-chartjs-2";
 
 import axios from "axios";
@@ -62,7 +61,7 @@ const useInterval = (callback, delay) => {
 const  App = () => {
   const [latitude, setLatitude] = useState(13.3409)
   const [longitude, setLongitude] = useState(74.7421)
-  const location =  Geolocation();
+  // const location =  Geolocation();
   const [chartData, setChartData] = useState({});
   const [humidityData, sethumidityData] = useState({});
   const [prevTemp , setTemp] = useState([])
@@ -161,7 +160,7 @@ const  App = () => {
         <h1>Micro Weather Station</h1>
       </div>
       <div className="Line_Graph">
-     {/* <LineGraph className="app_graph" currentWeather={currentWeather }/>  */}
+     
       <h3> Temperature </h3>
       
 
